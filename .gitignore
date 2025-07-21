@@ -11,6 +11,11 @@ log/
 *.obj
 *.elf
 
+# Compiled executables (Linux)
+**/mono_*
+**/stereo_*
+**/rgbd_*
+
 # CMake generated files
 CMakeCache.txt
 CMakeFiles/
