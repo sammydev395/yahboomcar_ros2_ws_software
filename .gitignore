@@ -43,6 +43,9 @@ CTestConfiguration.ini
 *.pb
 *.bag
 
+# Specific large files to exclude
+**/Vocabulary/*.tar.gz
+
 # Python
 __pycache__/
 *.py[cod]
