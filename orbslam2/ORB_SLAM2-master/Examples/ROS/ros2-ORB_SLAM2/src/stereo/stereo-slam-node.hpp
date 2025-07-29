@@ -16,7 +16,7 @@
 #include "Tracking.h"
 
 
-class StereoSlamNode : public rclcpp::Node, public std::enable_shared_from_this<StereoSlamNode>
+class StereoSlamNode : public rclcpp::Node
 {
 public:
     StereoSlamNode(std::shared_ptr<ORB_SLAM2::System> pSLAM, const string &strSettingsFile, const string &strDoRectify);
@@ -37,10 +37,10 @@ private:
     cv_bridge::CvImageConstPtr cv_ptrLeft;
     cv_bridge::CvImageConstPtr cv_ptrRight;
 
-    std::shared_ptr<message_filters::Subscriber<sensor_msgs::msg::Image> > left_sub;
-    std::shared_ptr<message_filters::Subscriber<sensor_msgs::msg::Image> > right_sub;
+    std::unique_ptr<message_filters::Subscriber<sensor_msgs::msg::Image> > left_sub;
+    std::unique_ptr<message_filters::Subscriber<sensor_msgs::msg::Image> > right_sub;
 
-    std::shared_ptr<message_filters::Synchronizer<approximate_sync_policy> > syncApproximate;
+    std::unique_ptr<message_filters::Synchronizer<approximate_sync_policy> > syncApproximate;
 };
 
 #endif

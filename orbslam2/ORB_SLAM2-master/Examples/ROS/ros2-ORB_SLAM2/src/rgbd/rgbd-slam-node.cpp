@@ -8,17 +8,21 @@ RgbdSlamNode::RgbdSlamNode(std::shared_ptr<ORB_SLAM2::System> pSLAM)
 :   Node("orbslam"),
     m_SLAM(pSLAM)
 {
-    auto node_handle = shared_from_this();
-    rgb_sub = std::make_shared<message_filters::Subscriber<ImageMsg> >(shared_ptr<rclcpp::Node>(this), "/color/image_raw");
-    depth_sub = std::make_shared<message_filters::Subscriber<ImageMsg> >(shared_ptr<rclcpp::Node>(this), "/depth/image_raw");
+    // Create subscribers using unique_ptr to avoid circular references
+    rgb_sub = std::make_unique<message_filters::Subscriber<ImageMsg> >(static_cast<rclcpp::Node*>(this), "/color/image_raw");
+    depth_sub = std::make_unique<message_filters::Subscriber<ImageMsg> >(static_cast<rclcpp::Node*>(this), "/depth/image_raw");
 
-    syncApproximate = std::make_shared<message_filters::Synchronizer<approximate_sync_policy> >(approximate_sync_policy(10), *rgb_sub, *depth_sub);
+    syncApproximate = std::make_unique<message_filters::Synchronizer<approximate_sync_policy> >(approximate_sync_policy(10), *rgb_sub, *depth_sub);
     syncApproximate->registerCallback(&RgbdSlamNode::GrabRGBD, this);
 
 }
 
 RgbdSlamNode::~RgbdSlamNode()  
 {
+    // Clean up subscribers before destruction
+    syncApproximate.reset();
+    rgb_sub.reset();
+    depth_sub.reset();
     // SLAM system shutdown is handled in main function
 }
 

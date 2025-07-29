@@ -22,7 +22,7 @@
 #include "Map.h"
 #include "Tracking.h"
 
-class RgbdSlamNode : public rclcpp::Node, public std::enable_shared_from_this<RgbdSlamNode>
+class RgbdSlamNode : public rclcpp::Node
 {
 public:
     RgbdSlamNode(std::shared_ptr<ORB_SLAM2::System> pSLAM);
@@ -40,10 +40,10 @@ private:
     cv_bridge::CvImageConstPtr cv_ptrRGB;
     cv_bridge::CvImageConstPtr cv_ptrD;
 
-    std::shared_ptr<message_filters::Subscriber<sensor_msgs::msg::Image> > rgb_sub;
-    std::shared_ptr<message_filters::Subscriber<sensor_msgs::msg::Image> > depth_sub;
+    std::unique_ptr<message_filters::Subscriber<sensor_msgs::msg::Image> > rgb_sub;
+    std::unique_ptr<message_filters::Subscriber<sensor_msgs::msg::Image> > depth_sub;
 
-    std::shared_ptr<message_filters::Synchronizer<approximate_sync_policy> > syncApproximate;
+    std::unique_ptr<message_filters::Synchronizer<approximate_sync_policy> > syncApproximate;
 };
 
 #endif

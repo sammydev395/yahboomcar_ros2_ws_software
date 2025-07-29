@@ -48,16 +48,21 @@ StereoSlamNode::StereoSlamNode(std::shared_ptr<ORB_SLAM2::System> pSLAM, const s
         cv::initUndistortRectifyMap(K_r,D_r,R_r,P_r.rowRange(0,3).colRange(0,3),cv::Size(cols_r,rows_r),CV_32F,M1r,M2r);
     }
 
-    auto nh = shared_from_this();
-    left_sub = std::make_shared<message_filters::Subscriber<ImageMsg>>(nh, "camera/left");
-    right_sub = std::make_shared<message_filters::Subscriber<ImageMsg>>(nh, "camera/right");
+    // Create subscribers using unique_ptr to avoid circular references
+    left_sub = std::make_unique<message_filters::Subscriber<ImageMsg>>(static_cast<rclcpp::Node*>(this), "camera/left");
+    right_sub = std::make_unique<message_filters::Subscriber<ImageMsg>>(static_cast<rclcpp::Node*>(this), "camera/right");
     
-    syncApproximate = std::make_shared<message_filters::Synchronizer<approximate_sync_policy> >(approximate_sync_policy(10), *left_sub, *right_sub);
+    syncApproximate = std::make_unique<message_filters::Synchronizer<approximate_sync_policy> >(approximate_sync_policy(10), *left_sub, *right_sub);
     syncApproximate->registerCallback(&StereoSlamNode::GrabStereo, this);
 }
 
 StereoSlamNode::~StereoSlamNode()
 {
+    // Clean up subscribers before destruction
+    syncApproximate.reset();
+    left_sub.reset();
+    right_sub.reset();
+    
     // Stop all threads
     if (m_SLAM)
     {
